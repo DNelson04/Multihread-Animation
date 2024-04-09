@@ -89,9 +89,6 @@ public class SortingAnimation extends JFrame{
             array = new int[unsortedArr.length];
             System.arraycopy(unsortedArr, 0, array, 0, unsortedArr.length);
         }
-        public void beginSort(){
-            start();
-        }
 
         @Override
         public void run(){
