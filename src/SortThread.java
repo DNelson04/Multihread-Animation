@@ -17,7 +17,7 @@ public class SortThread extends Thread{
             case "m" -> this.sortType = 3;
             case "q" -> this.sortType = 4;
         }
-        //So if they dont pass in an array, we can make a default one.
+        //So if they don't pass in an array, we can make a default one.
         //we'll allow people to input their own stupid numbers, but
         // we'll find a way to scale the values themselves to fit the
         // gui, but for now the default will be like 40 elements
