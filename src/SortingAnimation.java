@@ -35,7 +35,7 @@ public class SortingAnimation extends JFrame{
                     int y = animationThread.getElementAt(i);
                     g.setColor(Color.CYAN);
                     System.out.println("hello");
-                    //this isnt showing up rn bc the window vars are wrong somehow
+                    //this isn't showing up rn bc the window vars are wrong somehow
                     g.fillRect(windowWidth, windowHeight, x, y);
                 }
 
