@@ -78,7 +78,6 @@ public class SortingAnimation extends JFrame{
 
         //overloaded constructor for manual array entry
         public SortThread(String sortMethod, int[] unsortedArr){
-
             switch (sortMethod){
                 case "s" -> this.sortType = 0;
                 case "i" -> this.sortType = 1;
