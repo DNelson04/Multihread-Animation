@@ -2,6 +2,6 @@ import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new SortingAnimation("i", 2000));
+        SwingUtilities.invokeLater(() -> new SortingAnimation("b"));
     }
 }

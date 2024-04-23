@@ -5,11 +5,16 @@ import java.util.Arrays;
 public class SortingAnimation extends JFrame{
 
     public int sortType;
-    private SortThread animationThread;
-    private int windowHeight, windowWidth;
-    private int speedIncrement;
+    private final SortThread animationThread;
+    private int windowHeight;
+    private int windowWidth;
+    private int estFinishTime;
+    private int numElements;
 
-    public SortingAnimation(String sortMethod, int speedIncrement){
+    public SortingAnimation(String sortMethod){
+        this(sortMethod, 8000, 60);
+    }
+    public SortingAnimation(String sortMethod, int estFinishTime, int numElements){
         windowHeight = 1000;
         windowWidth = 1000;
         switch (sortMethod){
@@ -20,7 +25,8 @@ public class SortingAnimation extends JFrame{
             case "q" -> this.sortType = 4;
             default -> throw new RuntimeException("Unrecognized Sort Method");
         }
-        this.speedIncrement = speedIncrement;
+        this.estFinishTime = estFinishTime;
+        this.numElements = numElements;
         animationThread = new SortThread();
 
 
@@ -31,15 +37,32 @@ public class SortingAnimation extends JFrame{
         JPanel arrayPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
+                //TODO: figure out how to fit elements flush, and resize elements based on window size
                 super.paintComponent(g);
                 setBackground(Color.BLACK);
+                int offset = 0;
                 int[] array = animationThread.getArray();
                 int x = windowWidth / array.length;
+                double remainder = (double)(x) - x;
                 for(int i = 0; i < animationThread.getArray().length; i++){
+                    x = windowWidth / array.length;
+
+                    /*
+                    remainder*=2;
+                    if(remainder > 1){
+                        offset++;
+                        remainder--;
+                    }
+                    This doesn't work :(
+                     */
+
                     int y = array[i] * windowHeight / animationThread.getMaxRange();
-                    g.setColor(Color.CYAN);
-                    //this isn't showing up rn bc the window vars are wrong somehow
-                    g.fillRect(i * x, windowHeight - y, x, y);
+                    if(i != animationThread.elementIndex){
+                        g.setColor(Color.MAGENTA);
+                    }else{
+                        g.setColor(Color.RED);
+                    }
+                    g.fillRect(i * x + offset, windowHeight - y, x, y);
                 }
 
             }
@@ -50,36 +73,28 @@ public class SortingAnimation extends JFrame{
     }
 
     public class SortThread extends Thread{
-        private boolean isSorting;
 
-        int sortedIndex, element;
+        //region Declarations
+        //array, default value declaration
+        public int[] array;
+        private int maxRange = 350;
+        private int speedIncrement = 8000;
+
         //for use with insertion sort, need global variables
         // to maintain over multiple run calls
+        int element, elementIndex;
 
-        public int[] array;
-        private final int maxRange = 350;
+        //globals for selection sort
+        int currentMin, minIndex;
+        //endregion
 
         //primary constructor
         public SortThread(){
-            //So if they don't pass in an array, we can make a default one.
-            //we'll allow people to input their own stupid numbers, but
-            // we'll find a way to scale the values themselves to fit the
-            // gui, but for now the default will be like 40 elements
-            //and the range will be from 0 to 70
-            //so
-            int defaultElements = 40;
-            array = new int[defaultElements];
-            for(int i = 0; i < defaultElements; i++){
+            array = new int[numElements];
+            for(int i = 0; i < numElements; i++){
                 array[i] = (int)(Math.random()*maxRange);
             }
             System.out.println(Arrays.toString(array));
-        }
-
-        //overloaded constructor for manual array entry
-        public SortThread(String sortMethod, int[] unsortedArr){
-
-            array = new int[unsortedArr.length];
-            System.arraycopy(unsortedArr, 0, array, 0, unsortedArr.length);
         }
 
         @Override
@@ -87,78 +102,113 @@ public class SortingAnimation extends JFrame{
             switch (sortType){
                 case 0 -> {
                     try {
-                        Thread.sleep(200);
+                        speedIncrement = estFinishTime/(numElements*numElements);
                         sSort();
-                        repaint();
+                        System.out.println(Arrays.toString(array));
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
                 case 1 -> {
                     try {
-                        //HOW TO MAKE GUI UPDATE WITH ISORT, HOW TO MAKE ISORT KEEP RUNNING RECURRENTLY
+                        speedIncrement = estFinishTime/(numElements*numElements);
                         iSort();
                         System.out.println(Arrays.toString(array));
-                        repaint();
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
                 case 2 -> {
                     try {
-                        Thread.sleep(200);
+                        speedIncrement = estFinishTime/(numElements*numElements);
                         bSort();
-                        repaint();
+                        System.out.println(Arrays.toString(array));
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
                 case 3 -> {
                     try {
-                        Thread.sleep(200);
+                        speedIncrement = estFinishTime/(numElements*numElements);
                         mSort();
-                        repaint();
+                        System.out.println(Arrays.toString(array));
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
                 }
                 case 4 -> {
+                    try {
+                        speedIncrement = estFinishTime/(numElements*numElements);
                         qSort();
-                        repaint();
+                        System.out.println(Arrays.toString(array));
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
-
             }
         }
 
-        private void qSort() {
 
-        }
 
-        private void sSort() {
-
+        private void sSort() throws InterruptedException {
+            for(int sortedIndex = 0; sortedIndex < array.length; sortedIndex++){
+                currentMin = array[sortedIndex];
+                minIndex = sortedIndex;
+                for(int j = sortedIndex; j < array.length; j++){
+                    if(array[j] < currentMin){
+                        minIndex = j;
+                        currentMin = array[j];
+                    }
+                    SwingUtilities.invokeLater(SortingAnimation.this::repaint);
+                    Thread.sleep(speedIncrement);
+                }
+                array[minIndex] = array[sortedIndex];
+                array[sortedIndex] = currentMin;
+            }
         }
 
         private void iSort() throws InterruptedException {
+            for (int sortedIndex = 0; sortedIndex < array.length-1; sortedIndex++){
                 element = array[sortedIndex + 1];
                 for (int j = sortedIndex; j >= 0; j--) {
+                    elementIndex = j;
                     int compareTo = array[j];
                     if (element < compareTo) {
                         array[j + 1] = compareTo;
                         array[j] = element;
                     } else {
-                        j = 0;
+                        j = -1;
                     }
+                    SwingUtilities.invokeLater(SortingAnimation.this::repaint);
                     Thread.sleep(speedIncrement);
                 }
-                sortedIndex++;
-            System.out.println("hello");
+            }
         }
 
-        private void bSort() {
+        private void bSort() throws InterruptedException {
+            //TODO: update highlighted element in GUI
+            boolean sorting = true;
+            int toCompare;
+            while (sorting){
+                sorting = false;
+                for(int index = 0; index < array.length-1; index++) {
+                    toCompare = array[index];
+                    if(toCompare > array[index+1]){
+                        array[index] = array[index+1];
+                        array[index+1] = toCompare;
+                        sorting = true;
+                    }
+                    SwingUtilities.invokeLater(SortingAnimation.this::repaint);
+                    Thread.sleep(speedIncrement);
+                }
+            }
+        }
+
+        private void mSort() throws InterruptedException {
 
         }
 
-        private void mSort() {
+        private void qSort() throws InterruptedException {
 
         }
 
@@ -174,18 +224,34 @@ public class SortingAnimation extends JFrame{
             return maxRange;
         }
 
-        private void setArray(int[] array) {
-            this.array = array;
+        public int getNumElements() {
+            return numElements;
         }
 
         private int getElementAt(int index){
             return array[index];
+        }
+
+        private int getElementIndex(int value){
+            int arrIndex;
+            for(int i = 0; i < array.length; i ++){
+                if(array[i] == value){
+                    arrIndex = i;
+                    return arrIndex;
+                }
+            }
+            return -1;
+        }
+
+        private void setArray(int[] array) {
+            this.array = array;
         }
     }
 
     public void startAnimation(){
         animationThread.start();
     }
+
     public String toString(){
         return animationThread.toString();
     }
