@@ -95,6 +95,7 @@ public class SortingAnimation extends JFrame{
                 array[i] = (int)(Math.random()*maxRange);
             }
             System.out.println(Arrays.toString(array));
+
         }
 
         @Override
